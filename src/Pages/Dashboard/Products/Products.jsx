@@ -7,12 +7,12 @@ import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import secureLocalStorage from 'react-secure-storage';
 import { toast } from 'react-toastify';
+import { PhotoProvider, PhotoView } from 'react-photo-view';
 
 const Products = () => {
     const [brands, setBrands]=useState([]);
     const [Category, setCategory]=useState([]);
     const [SubCategory, setSubCategory]=useState([]);
-    const [thumbImage, setThumbImage]=useState([]);
 
     const userData = JSON.parse(secureLocalStorage.getItem("userData"));
     const navigate = useNavigate();
@@ -35,23 +35,23 @@ const Products = () => {
         })
     })
 
-
+    console.log(products);
     useEffect(() => {
-        new DataTable('#productsTable');
-        document.getElementById('productsTable_filter')?.classList?.add('mb-2');
-
         fetch(import.meta.env.VITE_API_URL+"/brand/get-all-brand")
         .then(response=>response.json())
         .then(data=>
         {
-            let byName=data.slice(0);
-            byName.sort(function(a, b)
+            if(data.length>0)
             {
-                var x = a.name;
-                var y = b.name;
-                return x < y ? -1 : x > y ? 1 : 0;
-            })
-            setBrands(byName);
+                let byName=data.slice(0);
+                byName.sort(function(a, b)
+                {
+                    var x = a.name;
+                    var y = b.name;
+                    return x < y ? -1 : x > y ? 1 : 0;
+                })
+                setBrands(byName);
+            } 
         })
         
 
@@ -59,107 +59,62 @@ const Products = () => {
         .then(response=>response.json())
         .then(data=>
         {
-            let byName=data.slice(0);
-            byName.sort(function(a, b)
+            if(data.length>0)
             {
-                var x = a.name;
-                var y = b.name;
-                return x < y ? -1 : x > y ? 1 : 0;
-            })
-            setCategory(byName);
+                let byName=data.slice(0);
+                byName.sort(function(a, b)
+                {
+                    var x = a.name;
+                    var y = b.name;
+                    return x < y ? -1 : x > y ? 1 : 0;
+                })
+                setCategory(byName);
+            }
         })
-
-        fetch(import.meta.env.VITE_API_URL+"/get-allImage")
-        .then(response=>response.json())
-        .then(data=>console.log(data))
         
     }, [products]);
-    
 
-    // console.log(products);
-    // console.log(Category);
-    const handleImage=(e)=>
-    {
-        setThumbImage(e.target.files[0])
-        // let rader= new FileReader()
-        // rader.readAsDataURL(e.target.files[0]);
-        // rader.onload=()=>
-        // {
-        //     console.log(rader.result);
-        //     setThumbImage(rader.result);
-        // }
-        // rader.error=()=>
-        // {
-        //     console.log("Error: ", console.error());
-        // }
-    }
     const categoryHandelar=(e)=>
     {
-        console.log(e.target.value);
-        // console.log(Category);
         const selectedCat=Category.find(cat=>cat.name===e.target.value)
-        // console.log(selectedCat);
         setSubCategory(selectedCat.subcategories)
-    }
-
-    const imageSubmit=async (id)=>
-    {
-        const formData=new FormData();
-        formData.append("image", thumbImage);
-        console.log("image");
-
-        const result = await axios.post(
-            `${import.meta.env.VITE_API_URL}/upload-image/${id}`,
-            formData,
-            {
-              headers: { "Content-Type": "multipart/form-data" },
-            }
-          ); 
     }
     const handleSubmit = (event) => {
         event.preventDefault();
-        // imageSubmit();
-        // let rader= new FileReader()
-        // rader.readAsDataURL(form.ThumbImage.files[0]);
-        // rader.onload=()=>
-        // {
-        //     console.log(rader.result);
-        //     setThumbImage(rader.result);
-        // }
-        // rader.error=()=>
-        // {
-        //     console.log("Error: ", console.error());
-        // }
 
         const form = event.target;
+
         const name = form.Name.value;
         const category = form.Categorie.value;
         const subcategory=form.Subcategorie.value;
         const price = form.Price.value;
         const discount = form.Discount.value;
         const brand = form.Brand.value;
-        // const thumbImg = thumbImage;
-        const bodyImage = form.BodyImage.value;
         const color = form.Color.value;
         const description = form.Description.value;
 
-        
+        const formData = new FormData()
+        const ThumbImage = form.ThumbImage.files[0];
+        const BodyImage1=form.BodyImage1.files[0];
+        const BodyImage2=form.BodyImage2.files[0];
+        const BodyImage3=form.BodyImage3.files[0];
 
-        const productData = {
-            "name": name,
-            "category": category,
-            "subcategory": subcategory,
-            "price": price,
-            "discount": discount,
-            "brand": brand,
-            // "thumb_image": thumbImg,
-            "media": [bodyImage],
-            "color": color,
-            "description": description
-        }
+        // console.log(BodyImage1);
 
-        console.log(productData)
-        axios.post(`${import.meta.env.VITE_API_URL}/product/add-product`, productData,
+        formData.append("thumb_image", ThumbImage)
+        formData.append("body_image1",BodyImage1)
+        formData.append("body_image2",BodyImage2)
+        formData.append("body_image3",BodyImage3)
+        formData.append("name",  name.toLowerCase())
+        formData.append("category", category)
+        formData.append("subcategory", subcategory)
+        formData.append("price", price)
+        formData.append("discount", discount)
+        formData.append("brand", brand)
+        formData.append("color", color)
+        formData.append("description", description)
+
+        axios.post(`${import.meta.env.VITE_API_URL}/product/add-product`, formData,
             {
                 headers: {
                     authorization: `Bearer ${userData?.user_token}`
@@ -168,8 +123,6 @@ const Products = () => {
             .then(response => {
                 console.log(response);
                 if (response.data.status === "success") {
-                    imageSubmit(response.data.productID);
-
                     toast.success(response.data.message);
                     document.getElementById('newProductModalClose').click()
                     refetch();
@@ -177,10 +130,6 @@ const Products = () => {
                 }
                 if (response.data.status === "failed") {
                     toast.error(response.data.message);
-                }
-                else
-                {
-                    toast.error("Something Went To Wrong");
                 }
             })
             .catch(error => {
@@ -191,6 +140,7 @@ const Products = () => {
     
 
     return (
+        <PhotoProvider>
         <div>
             <Helmet>
                 <title>Products - Ekka Dashboard</title>
@@ -222,7 +172,7 @@ const Products = () => {
                                         <div className="modal-body mx-2 mb-2">
                                             <div className="col-md-12 mb-3">
                                                 <label htmlFor="Name" className="form-label">Name</label>
-                                                <input type="text" placeholder='Enter Name' className="form-control" id="Name" name='Name' />
+                                                <input required type="text" placeholder='Enter Name' className="form-control" id="Name" name='Name' />
                                             </div>
                                             <div className="col-md-12 mb-3">
                                                 <label htmlFor="Categorie" className="form-label">Categorie</label>
@@ -242,10 +192,6 @@ const Products = () => {
                                                     }
                                                 </select>
                                             </div>
-                                            {/* <div className="col-md-12 mb-3">
-                                                <label htmlFor="Subcategorie" className="form-label">Subcategorie</label>
-                                                <input type="text" placeholder='Enter Subcategory Name' className="form-control" id="Subcategorie" name='Subcategorie' />
-                                            </div> */}
                                             <div className="col-md-12 mb-3">
                                                 <label htmlFor="Price" className="form-label">Price</label>
                                                 <input type="number" placeholder='Enter Price' className="form-control" id="Price" name='Price' />
@@ -265,16 +211,21 @@ const Products = () => {
                                             </div>
                                             <div className="col-md-12 mb-3">
                                                 <label htmlFor="ThumbImage" className="form-label">Thumb Image</label>
-                                                <input type="file" accept='image/*' placeholder='Enter Thumb Image URL' className="form-control" id="ThumbImage" name='ThumbImage' onChange={handleImage} />
-                                                {/* {thumbImage&&<img src={thumbImage} height="80px" width="80px" />} */}
+                                                {/* <input type="text" className="form-control" id="ThumbImage" name='ThumbImage'/> */}
+                                                <input type="file" accept=".png, .jpg" className="form-control" id="ThumbImage" name='ThumbImage'/>
                                             </div>
                                             <div className="col-md-12 mb-3">
-                                                <label htmlFor="BodyImage" className="form-label">Body Image</label>
-                                                <input type="text" placeholder='Enter Body Image URL' className="form-control" id="BodyImage" name='BodyImage' />
+                                                <label htmlFor="BodyImage1" className="form-label">Body Image</label>
+                                                <input type="file" accept=".png, .jpg" className="form-control" id="BodyImage1" name='BodyImage1'/>
                                             </div>
-                                            {/* <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
-                                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                                            </svg> */}
+                                            <div className="col-md-12 mb-3">
+                                                <label htmlFor="BodyImage2" className="form-label">Body Image</label>
+                                                <input type="file" accept=".png, .jpg" className="form-control" id="BodyImage2" name='BodyImage2'/>
+                                            </div>
+                                            <div className="col-md-12 mb-3">
+                                                <label htmlFor="BodyImage3" className="form-label">Body Image</label>
+                                                <input type="file" accept=".png, .jpg" className="form-control" id="BodyImage3" name='BodyImage3'/>
+                                            </div>
                                             <div className="col-md-12 mb-3">
                                                 <label htmlFor="Color" className="form-label">Color</label>
                                                 <input type="text" placeholder='Enter Colour' className="form-control" id="Color" name='Color' />
@@ -306,24 +257,33 @@ const Products = () => {
                             <thead>
                                 <tr>
                                     <th>SL No.</th>
+                                    <th>Image</th>
+                                    <th>All Images</th>
                                     <th>Name</th>
-                                    {/* <th>Brand</th> */}
-                                    {/* <th>Color</th> */}
+                                    <th>Brand</th>
+                                    <th>Color</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {products?.length <= 0 ? <tr>
+                                {products?.length <= 0 && <tr>
                                     <td colSpan='4' className='text-center'>No data available in table</td>
                                     <td className='d-none'></td>
                                     <td className='d-none'></td>
-                                </tr> : <></>}
-                                {products?.map((product, index) =>
+                                </tr>}
+                                {products.length>0&&products.map((product, index) =>
+                                    product&&
                                     <tr key={index}>
                                         <td>{index + 1}</td>
+                                        <td className='cursor-pointer'><PhotoView key={index} src={`${import.meta.env.VITE_API_URL}/${product?.thumb_image}`}><img width="36" alt={product?.name} src={`${import.meta.env.VITE_API_URL}/${product?.thumb_image}`}></img></PhotoView></td>
+                                        <td className='cursor-pointer'>
+                                            <PhotoView key={index+1} src={`${import.meta.env.VITE_API_URL}/${product?.media?.length>0&&product.media[0]}`}><img width="36" alt={product&&product?.name} src={`${import.meta.env.VITE_API_URL}/${product?.media?.length>0&&product?.media[0]}`}></img></PhotoView>
+                                            <PhotoView key={index+2} src={`${import.meta.env.VITE_API_URL}/${product?.media?.length>1&&product?.media[1]}`}><img width="36" alt={product&&product?.name} src={`${import.meta.env.VITE_API_URL}/${product?.media?.length>1&&product?.media[1]}`}></img></PhotoView>
+                                            <PhotoView key={index+3} src={`${import.meta.env.VITE_API_URL}/${product?.media?.length>2&&product?.media[2]}`}><img width="36" alt={product&&product?.name} src={`${import.meta.env.VITE_API_URL}/${product?.media?.length>2&&product?.media[2]}`}></img></PhotoView>
+                                        </td>
                                         <td>{product?.name}</td>
-                                        {/* <td>{product?.brand}</td> */}
-                                        {/* <td>{product?.color}</td> */}
+                                        <td>{product?.brand}</td>
+                                        <td>{product?.color}</td>
                                         <td>
                                             <Link to={`/dashboard/products/setting/${product?._id}`} type="button" className="btn btn-outline-primary btn-sm"><i className='bx bx-slider'></i>Setting</Link>
                                         </td>
@@ -333,9 +293,11 @@ const Products = () => {
                             <tfoot>
                                 <tr>
                                     <th>SL No.</th>
+                                    <th>Image</th>
+                                    <th>All Images</th>
                                     <th>Name</th>
-                                    {/* <th>Brand</th> */}
-                                    {/* <th>Color</th> */}
+                                    <th>Brand</th>
+                                    <th>Color</th>
                                     <th>Action</th>
                                 </tr>
                             </tfoot>
@@ -344,6 +306,7 @@ const Products = () => {
                 </div>
             </div>
         </div>
+        </PhotoProvider>
     );
 };
 

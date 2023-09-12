@@ -7,6 +7,7 @@ import axios from 'axios';
 import secureLocalStorage from 'react-secure-storage';
 import { toast } from 'react-toastify';
 import { Helmet } from 'react-helmet-async';
+import { PhotoProvider, PhotoView } from 'react-photo-view';
 
 const Brands = () => {
     const userData = JSON.parse(secureLocalStorage.getItem("userData"));
@@ -29,6 +30,7 @@ const Brands = () => {
                 }
             })
     })
+    console.log(brands);
 
     // useEffect(() => {
     //     new DataTable('#brandsTable');
@@ -40,11 +42,12 @@ const Brands = () => {
         const form = event.target;
         const name = form.Name.value;
 
-        const brandData = {
-            name: name.toLowerCase()
-        }
+        const formData = new FormData()
+        const image = form.brand_logo.files[0]
+        formData.append("brand_logo", image)
+        formData.append("name", name.toLowerCase())
 
-        axios.post(`${import.meta.env.VITE_API_URL}/brand/add-brand`, brandData,
+        axios.post(`${import.meta.env.VITE_API_URL}/brand/add-brand`, formData,
             {
                 headers: {
                     authorization: `Bearer ${userData?.user_token}`
@@ -67,6 +70,7 @@ const Brands = () => {
             });
     }
     return (
+        <PhotoProvider>
         <div>
             <Helmet>
                 <title>Brands - Ekka Dashboard</title>
@@ -100,6 +104,10 @@ const Brands = () => {
                                                 <label htmlFor="Name" className="form-label">Name</label>
                                                 <input required type="text" placeholder='Enter Brand Name' className="form-control" id="Name" name='Name' />
                                             </div>
+                                            <div className="col-md-12 mb-2">
+                                                <label htmlFor="brand_logo" className="form-label">Name</label>
+                                                <input required type="file" accept=".png, .jpg" className="form-control" id="brand_logo" name='brand_logo' />
+                                            </div>
                                             <button type="submit" className="btn btn-primary w-100"><i className='bx bx-message-square-add'></i>Add Brand</button>
                                         </div>
                                     </form>
@@ -119,6 +127,7 @@ const Brands = () => {
                             <thead>
                                 <tr>
                                     <th>SL No.</th>
+                                    <th>Logo</th>
                                     <th>Name</th>
                                     <th>Action</th>
                                 </tr>
@@ -132,6 +141,7 @@ const Brands = () => {
                                 {brands?.map((brand, index) =>
                                     <tr key={index}>
                                         <td>{index + 1}</td>
+                                        <td className='cursor-pointer'><PhotoView key={index} src={`${import.meta.env.VITE_API_URL}/${brand?.brand_logo}`}><img width="36" alt={brand?.name} src={`${import.meta.env.VITE_API_URL}/${brand?.brand_logo}`}></img></PhotoView></td>
                                         <td className='text-capitalize'>{brand?.name}</td>
                                         <td>
                                             <button type="button" className="btn btn-outline-primary btn-sm me-1"><i className='bx bx-receipt'></i>Details</button>
@@ -143,6 +153,7 @@ const Brands = () => {
                             <tfoot>
                                 <tr>
                                     <th>SL No.</th>
+                                    <th>Logo</th>
                                     <th>Name</th>
                                     <th>Action</th>
                                 </tr>
@@ -152,6 +163,7 @@ const Brands = () => {
                 </div>
             </div>
         </div>
+        </PhotoProvider>
     );
 };
 

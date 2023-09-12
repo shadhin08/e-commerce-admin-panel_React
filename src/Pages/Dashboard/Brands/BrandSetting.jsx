@@ -6,6 +6,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import secureLocalStorage from 'react-secure-storage';
 import { toast } from 'react-toastify';
 
+import { PhotoProvider, PhotoView } from 'react-photo-view';
+
 const BrandSetting = () => {
     const BrandID = useParams();
     const userData = JSON.parse(secureLocalStorage.getItem("userData"));
@@ -93,8 +95,41 @@ const BrandSetting = () => {
                 toast.error("Something Went To Wrong");
             });
     }
+    const handleLogoUpdate = (event) => {
+        event.preventDefault();
+        const form = event.target;
+
+        const formData = new FormData()
+        const image = form.brand_logo.files[0]
+        formData.append("brand_logo", image)
+        formData.append("brand_id", BrandID?.id)
+
+        // console.log("logo update");
+        axios.patch(`${import.meta.env.VITE_API_URL}/brand/update-brand`, formData,
+        {
+            headers: {
+                authorization: `Bearer ${userData?.user_token}`
+            }
+        })
+        .then(response => {
+            if (response.data.status === "success") {
+                toast.success("Brand Logo Updated");
+                document.getElementById('brandLogoModalClose').click()
+                refetch();
+                form.reset();
+            }
+            if (response.data.status === "failed") {
+                toast.error(response.data.message);
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            toast.error("Something Went To Wrong");
+        });
+    }
 
     return (
+        <PhotoProvider>
         <div>
             <Helmet>
                 <title>Brand Setting - Ekka Dashboard</title>
@@ -160,6 +195,29 @@ const BrandSetting = () => {
                     </div>
                 </div>
 
+                <div className="modal fade" id="brandLogoModal" tabIndex="-1" aria-hidden="true">
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Edit Brand Logo</h5>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form onSubmit={handleLogoUpdate} className="row g-3">
+                                <div className="modal-body mx-2 mb-2">
+                                    <div className="col-md-12 mb-3">
+                                        <label htmlFor="brand_logo" className="form-label">Brand Logo</label>
+                                        <input required className="form-control" type="file" accept=".png, .jpg" id="brand_logo" name="brand_logo" />
+                                    </div>
+                                    <button type="submit" className="btn btn-primary w-100"><i className='bx bx-message-square-edit'></i>Update Brand Logo</button>
+                                </div>
+                            </form>
+                            <div className="modal-footer px-4">
+                                <button id='brandLogoModalClose' type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <div className="row">
@@ -172,11 +230,17 @@ const BrandSetting = () => {
                                 <input type="text" className="form-control text-capitalize" value={brand?.name} disabled aria-label="Name" aria-describedby="basic-addon1" />
                                 <button data-bs-toggle="modal" data-bs-target="#brandNameModal" className='btn btn-primary'><i className='bx bx-message-square-edit ps-2 pe-1'></i></button>
                             </div>
+                            <div className="input-group"> <span className="input-group-text" id="basic-addon1">Brand Image</span>
+                                <PhotoView key={brand?.name} src={`${import.meta.env.VITE_API_URL}/${brand?.brand_logo}`}><img className='cursor-pointer' width="36" alt={brand?.name} src={`${import.meta.env.VITE_API_URL}/${brand?.brand_logo}`}></img></PhotoView>
+                                <input type="text" className="form-control" value={brand?.brand_logo} disabled aria-label="Contact" aria-describedby="basic-addon1" />
+                                <button data-bs-toggle="modal" data-bs-target="#brandLogoModal" className='btn btn-primary'><i className='bx bx-message-square-edit ps-2 pe-1'></i></button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        </PhotoProvider>
     );
 };
 

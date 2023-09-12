@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import secureLocalStorage from 'react-secure-storage';
 import { toast } from 'react-toastify';
+import { PhotoProvider, PhotoView } from 'react-photo-view';
 
 const ProductSetting = () => {
     const ProductID = useParams();
@@ -205,6 +206,131 @@ const ProductSetting = () => {
             toast.error("Something Went To Wrong");
         });
     }
+    const handleThumbImageUpdate = (event) => {
+        event.preventDefault();
+        const form = event.target;
+
+        const formData = new FormData()
+        const image = form.thumb_image.files[0]
+        formData.append("thumb_image", image)
+        formData.append("id", ProductID?.id)
+
+        axios.patch(`${import.meta.env.VITE_API_URL}/product/update-product/${ProductID?.id}`, formData,
+            {
+                headers: {
+                    authorization: `Bearer ${userData?.user_token}`
+                }
+            })
+            .then(response => {
+                if (response.data.status === "success") {
+                    toast.success("Product Thumb Image Updated");
+                    document.getElementById('productLogoModalClose').click()
+                    refetch();
+                    form.reset();
+                }
+                if (response.data.status === "failed") {
+                    toast.error(response.data.message);
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                toast.error("Something Went To Wrong");
+            });
+    }
+    
+    const handleBodyImage1Update = (event) => {
+        event.preventDefault();
+        const form = event.target;
+
+        const formData = new FormData()
+        const image = form.body_image1.files[0]
+        formData.append("body_image1", image)
+        formData.append("id", ProductID?.id)
+
+        axios.patch(`${import.meta.env.VITE_API_URL}/product/update-product/${ProductID?.id}`, formData,
+            {
+                headers: {
+                    authorization: `Bearer ${userData?.user_token}`
+                }
+            })
+            .then(response => {
+                if (response.data.status === "success") {
+                    toast.success("Product Body Image Updated");
+                    document.getElementById('productBodyImage1ModelClose').click()
+                    refetch();
+                    form.reset();
+                }
+                if (response.data.status === "failed") {
+                    toast.error(response.data.message);
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                toast.error("Something Went To Wrong");
+            });
+    }
+    const handleBodyImage2Update = (event) => {
+        event.preventDefault();
+        const form = event.target;
+
+        const formData = new FormData()
+        const image = form.body_image2.files[0]
+        formData.append("body_image2", image)
+        formData.append("id", ProductID?.id)
+
+        axios.patch(`${import.meta.env.VITE_API_URL}/product/update-product/${ProductID?.id}`, formData,
+            {
+                headers: {
+                    authorization: `Bearer ${userData?.user_token}`
+                }
+            })
+            .then(response => {
+                if (response.data.status === "success") {
+                    toast.success("Product Body Image Updated");
+                    document.getElementById('productBodyImage2ModelClose').click()
+                    refetch();
+                    form.reset();
+                }
+                if (response.data.status === "failed") {
+                    toast.error(response.data.message);
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                toast.error("Something Went To Wrong");
+            });
+    }
+    const handleBodyImage3Update = (event) => {
+        event.preventDefault();
+        const form = event.target;
+
+        const formData = new FormData()
+        const image = form.body_image3.files[0]
+        formData.append("body_image3", image)
+        formData.append("id", ProductID?.id)
+
+        axios.patch(`${import.meta.env.VITE_API_URL}/product/update-product/${ProductID?.id}`, formData,
+            {
+                headers: {
+                    authorization: `Bearer ${userData?.user_token}`
+                }
+            })
+            .then(response => {
+                if (response.data.status === "success") {
+                    toast.success("Product Body Image Updated");
+                    document.getElementById('productBodyImage3ModelClose').click()
+                    refetch();
+                    form.reset();
+                }
+                if (response.data.status === "failed") {
+                    toast.error(response.data.message);
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                toast.error("Something Went To Wrong");
+            });
+    }
 
     const handleDelete = () => {
         // console.log("delete");
@@ -232,6 +358,7 @@ const ProductSetting = () => {
     }
 
     return (
+        <PhotoProvider>
         <div>
             <Helmet>
                 <title>Product Setting - Ekka Dashboard</title>
@@ -387,14 +514,101 @@ const ProductSetting = () => {
                         </div>
                     </div>
                 </div>
+
+                <div className="modal fade" id="productThumbImageModel" tabIndex="-1" aria-hidden="true">
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Edit Product Thumb Image</h5>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form onSubmit={handleThumbImageUpdate} className="row g-3">
+                                <div className="modal-body mx-2 mb-2">
+                                    <div className="col-md-12 mb-3">
+                                        <label htmlFor="thumb_image" className="form-label">Product Thumb Image</label>
+                                        <input required className="form-control" type="file" accept=".png, .jpg" id="thumb_image" name="thumb_image" />
+                                    </div>
+                                    <button type="submit" className="btn btn-primary w-100"><i className='bx bx-message-square-edit'></i>Update Product Thumb Image</button>
+                                </div>
+                            </form>
+                            <div className="modal-footer px-4">
+                                <button id='productLogoModalClose' type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="modal fade" id="productBodyImage1Model" tabIndex="-1" aria-hidden="true">
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Edit Product Body Image 1</h5>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form onSubmit={handleBodyImage1Update} className="row g-3">
+                                <div className="modal-body mx-2 mb-2">
+                                    <div className="col-md-12 mb-3">
+                                        <label htmlFor="body_image1" className="form-label">Product Body Image 1</label>
+                                        <input required className="form-control" type="file" accept=".png, .jpg" id="body_image1" name="body_image1" />
+                                    </div>
+                                    <button type="submit" className="btn btn-primary w-100"><i className='bx bx-message-square-edit'></i>Update Product Thumb Image</button>
+                                </div>
+                            </form>
+                            <div className="modal-footer px-4">
+                                <button id='productBodyImage1ModelClose' type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="modal fade" id="productBodyImage2Model" tabIndex="-1" aria-hidden="true">
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Edit Product Body Image 2</h5>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form onSubmit={handleBodyImage2Update} className="row g-3">
+                                <div className="modal-body mx-2 mb-2">
+                                    <div className="col-md-12 mb-3">
+                                        <label htmlFor="body_image2" className="form-label">Product Body Image 2</label>
+                                        <input required className="form-control" type="file" accept=".png, .jpg" id="body_image2" name="body_image2" />
+                                    </div>
+                                    <button type="submit" className="btn btn-primary w-100"><i className='bx bx-message-square-edit'></i>Update Product Thumb Image</button>
+                                </div>
+                            </form>
+                            <div className="modal-footer px-4">
+                                <button id='productBodyImage2ModelClose' type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+
+                <div className="modal fade" id="productBodyImage3Model" tabIndex="-1" aria-hidden="true">
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Edit Product Body Image 3</h5>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form onSubmit={handleBodyImage3Update} className="row g-3">
+                                <div className="modal-body mx-2 mb-2">
+                                    <div className="col-md-12 mb-3">
+                                        <label htmlFor="body_image3" className="form-label">Product Body Image 3</label>
+                                        <input required className="form-control" type="file" accept=".png, .jpg" id="body_image3" name="body_image3" />
+                                    </div>
+                                    <button type="submit" className="btn btn-primary w-100"><i className='bx bx-message-square-edit'></i>Update Product Thumb Image</button>
+                                </div>
+                            </form>
+                            <div className="modal-footer px-4">
+                                <button id='productBodyImage3ModelClose' type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-
             
-
-
-
-
 
             <div className="row">
                 <div className="col-xl-9 mx-auto mt-3">
@@ -424,11 +638,33 @@ const ProductSetting = () => {
                                 <input type="text" className="form-control" value={product?.description} disabled aria-label="Name" aria-describedby="basic-addon1" />
                                 <button data-bs-toggle="modal" data-bs-target="#productDescriptionModal" className='btn btn-primary'><i className='bx bx-message-square-edit ps-2 pe-1'></i></button>
                             </div>
+                            <div className="input-group mb-3"> <span className="input-group-text" id="basic-addon1">Product Thumb Image</span>
+                                <PhotoView key={product?.name} src={`${import.meta.env.VITE_API_URL}/${product?.thumb_image}`}><img className='cursor-pointer' width="36" alt={product?.name} src={`${import.meta.env.VITE_API_URL}/${product?.thumb_image}`}></img></PhotoView>
+                                <input type="text" className="form-control" value={product?.thumb_image} disabled aria-label="Contact" aria-describedby="basic-addon1" />
+                                <button data-bs-toggle="modal" data-bs-target="#productThumbImageModel" className='btn btn-primary'><i className='bx bx-message-square-edit ps-2 pe-1'></i></button>
+                            </div>
+                            <div className="input-group mb-3"> <span className="input-group-text" id="basic-addon1">Product Body Image 1</span>
+                                <PhotoView key={product?.name} src={`${import.meta.env.VITE_API_URL}/${product?.media?.length>0&&product.media[0]}`}><img className='cursor-pointer' width="36" alt={product?.name} src={`${import.meta.env.VITE_API_URL}/${product?.media?.length>0&&product.media[0]}`}></img></PhotoView>
+                                <input type="text" className="form-control" value={product?.media?.length>0&&product.media[0]} disabled aria-label="Contact" aria-describedby="basic-addon1" />
+                                <button data-bs-toggle="modal" data-bs-target="#productBodyImage1Model" className='btn btn-primary'><i className='bx bx-message-square-edit ps-2 pe-1'></i></button>
+                            </div>
+                            <div className="input-group mb-3"> <span className="input-group-text" id="basic-addon1">Product Body Image 2</span>
+                                <PhotoView key={product?.name} src={`${import.meta.env.VITE_API_URL}/${product?.media?.length>0&&product.media[1]}`}><img className='cursor-pointer' width="36" alt={product?.name} src={`${import.meta.env.VITE_API_URL}/${product?.media?.length>0&&product.media[1]}`}></img></PhotoView>
+                                <input type="text" className="form-control" value={product?.media?.length>0&&product.media[1]} disabled aria-label="Contact" aria-describedby="basic-addon1" />
+                                <button data-bs-toggle="modal" data-bs-target="#productBodyImage2Model" className='btn btn-primary'><i className='bx bx-message-square-edit ps-2 pe-1'></i></button>
+                            </div>
+                            <div className="input-group mb-3"> <span className="input-group-text" id="basic-addon1">Product Body Image 3</span>
+                                <PhotoView key={product?.name} src={`${import.meta.env.VITE_API_URL}/${product?.media?.length>0&&product.media[2]}`}><img className='cursor-pointer' width="36" alt={product?.name} src={`${import.meta.env.VITE_API_URL}/${product?.media?.length>0&&product.media[2]}`}></img></PhotoView>
+                                <input type="text" className="form-control" value={product?.media?.length>0&&product.media[2]} disabled aria-label="Contact" aria-describedby="basic-addon1" />
+                                <button data-bs-toggle="modal" data-bs-target="#productBodyImage3Model" className='btn btn-primary'><i className='bx bx-message-square-edit ps-2 pe-1'></i></button>
+                            </div>
+
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        </PhotoProvider>
     );
 };
 
